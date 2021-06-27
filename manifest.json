@@ -1,8 +1,9 @@
 {
-  "name": "Getting Started Example",
-  "description": "Build an Extension!",
+  "name": "Ted's hello world Getting Started Example",
+  "description": "Ted builds an extension!",
   "version": "1.0",
   "manifest_version": 3,
+  "options_page": "options.html",
   "background": {
     "service_worker": "background.js"
   },
