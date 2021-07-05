@@ -1,27 +1,75 @@
 // TODO
+// * search last (30) days
+// * actually scrape everything
+//   * sequentially!
+// * put it somewhere useful
+// * encapsulate intermediate steps
 // * casts are scary (' as ')
 // * not-null checks are scary (!)
-
-
-/*
-what have i done?
-*/
+// * catch at end of promises
 
 function myLog(s: string) {
   console.log('THROMER ' + s)
 }
 
-function main() {
-  waitForElement('#transactionDetailIcon0')
-    .then(function(element: HTMLElement) {  // TypeSCript sad
-      element.click();
-      return waitForTransactionDetails('Hi there');
-    })
-    .then(() => waitForElement('#flyoutClose'))
-    .then(function(element: HTMLElement) {   // TypeScript sad
+function stringifyMap(m: Map<string, string>) {
+  return Array.from(m.entries()).map(e => e[0] + ' => ' + e[1]).join(", ")
+  // return JSON.stringify(Object.fromEntries(m.entries()))
+}
+
+function analyzeElement(elementString: string): (_: any) => Promise<Map<string, string>> {
+  return (_: any) => waitForElement(elementString)
+    .then(function(element: HTMLElement) {
       element.click()
+      return waitForTransactionDetails(elementString)
+    })
+    .then(function() {
+      const answer = transactionDetails(elementString + ' again')
+      myLog('not fully returned answer ' + stringifyMap(answer))
+      return waitForElement('#flyoutClose')
+	.then(function(element: HTMLElement) {
+	  element.click()
+	  myLog('not fully returned answer ' + stringifyMap(answer))
+	  return answer
+	})
+      // TODO catch?
+    })
+    .then(function(answer: Map<string, string>) {
+      // TODO superfluous you'd think
+      return answer
     })
   // TODO .catch !
+}
+
+function main() {
+  mainHardcoded()
+}
+
+/*
+function mainWithHardcodedArray() {
+  const elementStrings = ['#transactionDetailIcon0', '#transactionDetailIcon1', '#transactionDetailIcon2']
+  let result
+  const promises = elementStrings.map(e => analyzeElement(e)).map(e => e(undefined))  // so why did i use factories if this works?
+  promises.reduce((p, f) => p.then(f), Promise.resolve())  // TODO why does this work?
+    .then(function(okThen) {
+      console.log('reduce produced ' + JSON.stringify(okThen))
+      return okThen
+    })
+}
+*/
+
+function mainHardcoded() {
+  const x = analyzeElement('#transactionDetailIcon0')
+  const y = analyzeElement('#transactionDetailIcon1')
+
+  x(undefined)
+    .then(function(answer: Map<string, string>) {
+      myLog('it worked! ' + stringifyMap(answer))
+      return y(undefined)
+    })
+    .then(answer => myLog('it worked more! ' + stringifyMap(answer)))
+  // TODO .catch !
+
 }
 	   
 	   
@@ -143,7 +191,7 @@ function waitForTransactionDetails(transactionId: string) {
 	e => e.textContent!.toLowerCase().trim())  // TypeScript
       const dds = Array.from(document.querySelectorAll('dd')).map(
 	e => e.textContent || (e.querySelector('mds-link')! as HTMLElement).getAttribute('text'))
-      // myLog(transactionId + ' in predicate ' + JSON.stringify(m))
+      // myLog(transactionId + ' in predicate ' + stringifyMap(m))
       // myLog(transactionId + ' hrm? ' + JSON.stringify(dts) + ' ' + JSON.stringify(dds))
       return dts.includes('amazon order number') &&
 	dds.length >= dts.length && m.has('amazon order number')
@@ -162,10 +210,10 @@ function transactionDetails(transactionId: string) : Map<string, string> {
   myLog('transactionDetails for ' + transactionId)
   const dts = Array.from(document.querySelectorAll('dt')).map(
     e => e.textContent)
-  // myLog('dts.length= ' + dts.length)
+  myLog('dts.length= ' + dts.length)
   const dds = Array.from(document.querySelectorAll('dd')).map(
     e => e.textContent || (e.querySelector('mds-link') as HTMLElement).getAttribute('text'))
-  // myLog('dds.length= ' + dts.length)
+  myLog('dds.length= ' + dts.length)
   const m = new Map<string, string>()
   for (let i = 0; i < dts.length; i++) {
     m.set(dts[i]!.trim().toLowerCase(), dds[i]!)
@@ -175,11 +223,12 @@ function transactionDetails(transactionId: string) : Map<string, string> {
   // https://github.com/djedi/chase-amazon/blob/master/ext/src/inject/inject.js#L6
   const mdslink = document.querySelector("mds-link[id$=OrderNumber]");
   if (mdslink) {
-    // myLog('found magic ' + mdslink)
+    myLog('found magic ' + mdslink)
     const number = mdslink.shadowRoot!.querySelector('a')!.text
     myLog('found order ' + number)
     m.set('amazon order number', mdslink.shadowRoot!.querySelector('a')!.text)
   }
+  myLog('in transaction details answer came out to ' + stringifyMap(m))
   return m
 }
 
@@ -230,7 +279,7 @@ function predicateSatisfied(
 	  record.addedNodes.forEach(node => {
 	    if (allDone || predicate()) {
 	      allDone = true
-	      // myLog('[in observer]' + JSON.stringify(transactionDetails('xyz')))
+	      // myLog('[in observer]' + stringifyMap(transactionDetails('xyz')))
 	      myLog('satisfied ' + description)
 	      resolve(undefined)
               observer.disconnect()
@@ -318,7 +367,7 @@ function analyze() {
 	  e => e.textContent.toLowerCase().trim())
 	const dds = Array.from(document.querySelectorAll('dd')).map(
 	  e => e.textContent || e.querySelector('mds-link')['text'])
-	myLog('in predicate ' + JSON.stringify(m))
+	myLog('in predicate ' + stringifyMap(m))
 	myLog('hrm? ' + JSON.stringify(dts) + ' ' +
 		    JSON.stringify(dds))
 	return dts.includes('amazon order number') &&
