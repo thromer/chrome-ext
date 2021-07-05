@@ -17,59 +17,45 @@ function stringifyMap(m: Map<string, string>) {
   // return JSON.stringify(Object.fromEntries(m.entries()))
 }
 
-function analyzeElement(elementString: string): (_: any) => Promise<Map<string, string>> {
-  return (_: any) => waitForElement(elementString)
-    .then(function(element: HTMLElement) {
-      element.click()
-      return waitForTransactionDetails(elementString)
-    })
-    .then(function() {
-      const answer = transactionDetails(elementString + ' again')
-      myLog('not fully returned answer ' + stringifyMap(answer))
-      return waitForElement('#flyoutClose')
-	.then(function(element: HTMLElement) {
-	  element.click()
-	  myLog('not fully returned answer ' + stringifyMap(answer))
-	  return answer
-	})
-      // TODO catch?
-    })
-    .then(function(answer: Map<string, string>) {
-      // TODO superfluous you'd think
-      return answer
-    })
-  // TODO .catch !
+async function analyzeElement(elementString: string): Promise<Map<string, string>> {
+  const element: HTMLElement = await waitForElement(elementString)
+  element.click()
+  await waitForTransactionDetails(elementString)
+  const answer = transactionDetails(elementString + ' again')
+  const closeElement: HTMLElement = await waitForElement('#flyoutClose')
+  closeElement.click()
+  myLog('not fully returned answer ' + stringifyMap(answer))
+  return answer
 }
 
 function main() {
-  mainHardcoded()
+  mainHardcodedArray()
 }
 
-/*
-function mainWithHardcodedArray() {
+async function mainWithHardcodedArrayPartial() : Promise<Map<string, string>[]>{
   const elementStrings = ['#transactionDetailIcon0', '#transactionDetailIcon1', '#transactionDetailIcon2']
-  let result
-  const promises = elementStrings.map(e => analyzeElement(e)).map(e => e(undefined))  // so why did i use factories if this works?
-  promises.reduce((p, f) => p.then(f), Promise.resolve())  // TODO why does this work?
-    .then(function(okThen) {
-      console.log('reduce produced ' + JSON.stringify(okThen))
-      return okThen
-    })
+  var answer: Map<string, string>[] = [];
+  for (const e of elementStrings) {
+    answer.push(await analyzeElement(e))
+  }
+  return answer
 }
-*/
+
+function mainHardcodedArray() {
+  mainWithHardcodedArrayPartial()
+    .then(function(x) {myLog(x.map(e => stringifyMap(e)).join("; "))})
+}
 
 function mainHardcoded() {
-  const x = analyzeElement('#transactionDetailIcon0')
-  const y = analyzeElement('#transactionDetailIcon1')
+  mainHardcodedPartial()
+    .then(x => x)
+}
 
-  x(undefined)
-    .then(function(answer: Map<string, string>) {
-      myLog('it worked! ' + stringifyMap(answer))
-      return y(undefined)
-    })
-    .then(answer => myLog('it worked more! ' + stringifyMap(answer)))
-  // TODO .catch !
-
+async function mainHardcodedPartial() {
+  const x = await analyzeElement('#transactionDetailIcon0')
+  myLog('it worked! ' + stringifyMap(x))
+  const y = await analyzeElement('#transactionDetailIcon1')
+  myLog('it worked! ' + stringifyMap(y))
 }
 	   
 	   
