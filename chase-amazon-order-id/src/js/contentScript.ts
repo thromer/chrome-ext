@@ -1,20 +1,39 @@
+// TODO
+// * casts are scary (' as ')
+// * not-null checks are scary (!)
+
+
 /*
 what have i done?
-
-
-
 */
 
-function myLog(s) {
+function myLog(s: string) {
   console.log('THROMER ' + s)
 }
 
 function main() {
+  waitForElement('#transactionDetailIcon0')
+    .then(function(element: HTMLElement) {  // TypeSCript sad
+      element.click();
+      return waitForTransactionDetails('Hi there');
+    })
+    .then(() => waitForElement('#flyoutClose'))
+    .then(function(element: HTMLElement) {   // TypeScript sad
+      element.click()
+    })
+  // TODO .catch !
+}
+	   
+	   
+
+
   // * probably all this guarantees is that they happen in order.
   // * but at least it works.
   // * i *think* it was very important for the argument then to be a lazily evaluated
   //   function that return a promise, not a direct invocation of waitForElement.
   //   but I don't really know
+
+/*  
 
   // happily *this* behaves well.
   waitForElement('#transactionDetailIcon0')
@@ -24,20 +43,19 @@ function main() {
     .catch(function() {
       myLog('that exploded')
       return undefined
-    })
+    });
+  myLog("main")
 
-
-    myLog('grabTransactionDetailsAndReturn ' + transactionId)
-  // open the popup, grab the order number, and close the popup
-  // needs to return a promise
-  document.querySelector("#transactionDetailIcon0").click()
-  myLog('grabTransactionDetailsAndReturn clicked')
-    
+  const transactionId = 'something or other'
   waitForElement('#transactionDetailIcon0')
-    .then(() => waitForTransactionDetails(transactionId))
+    .then(() => waitForTransactionDetails(transactionId)
+    .then(function() {
+      myLog('clicking it');
+      (document.querySelector("#transactionDetailIcon0")! as HTMLElement).click();
+    })
     .then(transactionId => transactionDetails('REALLY ' + transactionId))
   //     .then(waitForPopup(transactionId))  // this does not wait very effectively!
-    .then(() => function(transactionId) {  // confuses me if i had to prefix with () =>  as i thought we're nested pretty deep as it is!
+    .then(function() {  // confuses me if i had to prefix with () =>  as i thought we're nested pretty deep as it is!
       myLog("I am returning a f''ing promise here so don't just merrily proceed to the next thing")
       return waitForElement('#flyoutClose')
     })
@@ -72,6 +90,10 @@ function main() {
   )
 }
 
+*/
+
+/*
+
 function grabSomeTransactions() {
   // just scrape all the transactions we see
   // for now we pretend
@@ -105,8 +127,9 @@ function grabTransactionDetailsAndReturn(transactionId) {
     .then(waitForMainPage('really we lost track'))
   // TODO catch!
 }
+*/
 
-function waitForTransactionDetails(transactionId) {
+function waitForTransactionDetails(transactionId: string) {
   myLog('waitForTransactionDetails ' + transactionId)
   return predicateSatisfied(
     document.documentElement,
@@ -117,13 +140,13 @@ function waitForTransactionDetails(transactionId) {
     () => {
       const m = transactionDetails('polling ' + transactionId)
       const dts = Array.from(document.querySelectorAll('dt')).map(
-	e => e.textContent.toLowerCase().trim())
+	e => e.textContent!.toLowerCase().trim())  // TypeScript
       const dds = Array.from(document.querySelectorAll('dd')).map(
-	e => e.textContent || e.querySelector('mds-link')['text'])
+	e => e.textContent || (e.querySelector('mds-link')! as HTMLElement).getAttribute('text'))
       // myLog(transactionId + ' in predicate ' + JSON.stringify(m))
       // myLog(transactionId + ' hrm? ' + JSON.stringify(dts) + ' ' + JSON.stringify(dds))
       return dts.includes('amazon order number') &&
-	dds.length >= dts.length && m['amazon order number']
+	dds.length >= dts.length && m.has('amazon order number')
     },
     10000,
     'waiting for amazon order number'
@@ -133,17 +156,19 @@ function waitForTransactionDetails(transactionId) {
   // will this function all get executed in the right sequence?
 }
 
-function transactionDetails(transactionId) {
+
+
+function transactionDetails(transactionId: string) : Map<string, string> {
   myLog('transactionDetails for ' + transactionId)
   const dts = Array.from(document.querySelectorAll('dt')).map(
     e => e.textContent)
   // myLog('dts.length= ' + dts.length)
   const dds = Array.from(document.querySelectorAll('dd')).map(
-    e => e.textContent || e.querySelector('mds-link')['text'])
+    e => e.textContent || (e.querySelector('mds-link') as HTMLElement).getAttribute('text'))
   // myLog('dds.length= ' + dts.length)
-  const m = {}
+  const m = new Map<string, string>()
   for (let i = 0; i < dts.length; i++) {
-    m[dts[i].trim().toLowerCase()] = dds[i]
+    m.set(dts[i]!.trim().toLowerCase(), dds[i]!)
   }
 
   // My way works in browser but not in extension?  This is from
@@ -151,20 +176,20 @@ function transactionDetails(transactionId) {
   const mdslink = document.querySelector("mds-link[id$=OrderNumber]");
   if (mdslink) {
     // myLog('found magic ' + mdslink)
-    const number = mdslink.shadowRoot.querySelector("a").text
+    const number = mdslink.shadowRoot!.querySelector('a')!.text
     myLog('found order ' + number)
-    m['amazon order number'] = mdslink.shadowRoot.querySelector("a").text
+    m.set('amazon order number', mdslink.shadowRoot!.querySelector('a')!.text)
   }
   return m
 }
 
-/* 
+/*
+
 function waitForPopup(arg) {
   return waitForElement('#flyoutClose ' + arg)
     .then(() => arg)
   // catch ?
 }
-*/
 
 function closePopup(arg) {
   myLog('clicking flyoutClose ' + arg)
@@ -185,17 +210,19 @@ var ANSWER = []
 // TODO implement timeout
 // inspiration https://gist.github.com/jwilson8767/db379026efcbd932f64382db4b02853e
 // Another example .https://blog.frankmtaylor.com/2017/06/16/promising-a-mutation-using-mutationobserver-and-promises-together/
+*/
+
 function predicateSatisfied(
-  mutationTarget,
-  mutatationObserverOptions,
-  predicate,
-  timeout,
-  description) {
+  mutationTarget: HTMLElement,
+  mutatationObserverOptions: MutationObserverInit,
+  predicate: () => boolean,
+  timeout: number,
+  description: string) {
   return new Promise((resolve, reject) => {
     myLog('awaiting ' + description)
     if (predicate()) {
       myLog('that was quick ' + description)
-      resolve()
+      resolve(undefined)
     } else {
       new MutationObserver((mutationRecords, observer) => {
 	let allDone = false
@@ -205,7 +232,7 @@ function predicateSatisfied(
 	      allDone = true
 	      // myLog('[in observer]' + JSON.stringify(transactionDetails('xyz')))
 	      myLog('satisfied ' + description)
-	      resolve()
+	      resolve(undefined)
               observer.disconnect()
 	    }
 	  })
@@ -215,17 +242,18 @@ function predicateSatisfied(
     }
   })
 }
-  
+
+
 
 // From
 // https://gist.github.com/jwilson8767/db379026efcbd932f64382db4b02853e
 // Similar:
 // https://www.darklaunch.com/javascript-wait-for-an-element-to-exist.html
-function waitForElement(selector) {
+function waitForElement(selector: string) : Promise<HTMLElement> {
   myLog('in waitForElement ' + selector)
   return new Promise((resolve, reject) => {
     myLog('looking for ' + selector)
-    let el = document.querySelector(selector)
+    let el = document.querySelector(selector) as HTMLElement
     if (el) {
       myLog('done quickly ' + selector)
       resolve(el)
@@ -234,7 +262,7 @@ function waitForElement(selector) {
       // Query for elements matching the specified selector
       Array.from(document.querySelectorAll(selector)).forEach((element) => {
 	myLog('done observing ' + selector)
-        resolve(element)
+        resolve(element as HTMLElement)
         //Once we have resolved we don't need the observer anymore.
         observer.disconnect()
       })
@@ -302,6 +330,7 @@ function analyze() {
 }
 */
 
+/*
 // TODO wait for search instead but how exactly?
 // TODO and actually run a search
 
@@ -309,5 +338,6 @@ function oldMain() {
   waitForElement('#transactionDetailIcon0').then(analyze)
 }
 // waitForElement('#activityContainersingleOVDAccountActivity').then(analyze)
+*/
 
 main()
