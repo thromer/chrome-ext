@@ -11,7 +11,7 @@ window.onload = function() {
         'contentType': 'json'
       };
       fetch(
-	'https://content-sheets.googleapis.com/v4/spreadsheets/1UQQgW3kBfxNBB50q1pg4Hn2c6DvwoKVUF_9GelZ1k1Q?key=AIzaSyDAK21zJnikmqXn5GXurH5O2neIb2GCerg',
+	'https://content-sheets.googleapis.com/v4/spreadsheets/KEY_GOES_HERE',
           init)
           .then((response) => response.json())
           .then(function(data) {
