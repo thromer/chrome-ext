@@ -7,7 +7,13 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "scripting", "activeTab"],
+  "permissions": ["storage", "scripting", "activeTab", "identity"],
+  "oauth2": {
+    "client_id": "721888169423-9dpmkfnrqsmec10ipe7nc13cup2akvh8.apps.googleusercontent.com",
+    "scopes":[
+      "https://www.googleapis.com/auth/spreadsheets"
+    ]
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
