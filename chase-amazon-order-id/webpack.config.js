@@ -4,6 +4,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 module.exports = {
   mode: 'development',  // not needed to get .js.map
   entry: {
+    'background': './src/js/background.ts',
     'contentScript': './src/js/contentScript.ts',
   },
   devtool: 'inline-source-map',  // needed to get .js.map

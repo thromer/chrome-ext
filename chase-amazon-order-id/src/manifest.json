@@ -12,6 +12,9 @@
       "https://www.googleapis.com/auth/spreadsheets"
     ]
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://*.chase.com/*"],
