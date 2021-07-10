@@ -2,11 +2,12 @@ const path = require('path');
 const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-  // mode: 'development',  // needed to get .js.map ? i doubt it
+  mode: 'development',  // not needed to get .js.map
   entry: {
     'background': './src/js/background.ts',
     // 'options': './src/html/options.html',
     // 'popup': './src/html/popup.html'
+    'oauth': './src/js/oauth.ts',
     'options': './src/js/options.ts',
     'popup': './src/js/popup.ts'
   },

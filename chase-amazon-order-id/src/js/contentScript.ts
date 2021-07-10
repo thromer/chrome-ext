@@ -60,7 +60,12 @@ async function analyzeElementElement(element: HTMLElement, label: string): Promi
 }
 
 function main() {
-  mainWithDynamicArray()
+  const csv = {'ha':'ho'}
+  chrome.runtime.sendMessage({greeting: "hello", body: csv}, function(response) {
+    console.log(response.farewell);
+  })
+  return
+  // mainWithDynamicArray()
 }
 
 async function transactionList() {
@@ -109,9 +114,12 @@ function mainHardcodedArray() {
   mainWithHardcodedArrayPartial()
     .then(function(x) {
       const csv = toCsv(x)
-      myLog(csv)
-      myLog(x.map(e => stringifyMap(e)).join("; "))
-      save_file.save(csv, 'chase_order_numbers.csv')
+      // myLog(csv)
+      // myLog(x.map(e => stringifyMap(e)).join("; "))
+      // save_file.save(csv, 'chase_order_numbers.csv')
+      chrome.runtime.sendMessage({greeting: "hello", body: csv}, function(response) {
+	console.log(response.farewell);
+      })
     })
 }
 
