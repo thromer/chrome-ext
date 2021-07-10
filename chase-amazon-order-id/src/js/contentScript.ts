@@ -3,6 +3,9 @@
 // import stringify from 'csv-stringify/lib/sync'
 
 // TODO
+// * merge 'sale' and 'adjustment' into single field
+// ** or simpler get amount and anything else we can from the list view
+//    not the pop-up
 // * search last (30) days
 // * apps script to populate order id for me
 // * DONE actually scrape everything
