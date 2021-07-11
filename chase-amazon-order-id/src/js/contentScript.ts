@@ -1,13 +1,19 @@
-// import stringify from 'csv-stringify/lib/sync'
-// const csv = require('csv-stringify/lib/sync')
-// import stringify from 'csv-stringify/lib/sync'
-
 // TODO
+// * send service worker a message asking if we need to fetch anything
+// * send service worker the results of our work
+// * send service work info about our status for display inte the icon/popup
+//   * including whether we're hoping the user will login
+// * timeout on wait for element
+// * would be nice to be able to know what upper bound on date is
+//   * can try experimentally tho
+// * use the host from the url instead of hardcoded host
+// * very optional -- different way of deciding whether we're logged in?
 // * merge 'sale' and 'adjustment' into single field
 // ** or simpler get amount and anything else we can from the list view
 //    not the pop-up
 // * search last (30) days
 // * apps script to populate order id for me
+// * ORDER HANDLING!
 // * DONE actually scrape everything
 // * DONE download to csv
 // * DONE encapsulate intermediate steps
@@ -18,192 +24,123 @@
 // * do it when requested not eagerly!
 // * do it in hiding (doubtful!)
 
-import * as save_file from './save_file';
+import { v4 as uuidv4 } from 'uuid';
 
-function myLog(s: string) {
-  console.log('THROMER ' + s)
-}
-
-function stringifyMap(m: Map<string, string>) {
-  return Array.from(m.entries()).map(e => e[0] + ' => ' + e[1]).join(", ")
-  // return JSON.stringify(Object.fromEntries(m.entries()))
-}
-
-const KEYS = ['sale', 'transaction date', 'posted date', 'merchant info', 'description', 'also known as', 'method', 'card number', 'category', 'amazon order number']
-
-function toCsv(answer: Map<string, string>[]) {
-  const table = [KEYS].concat(
-    answer.map(m => KEYS.map(k => m.get(k) || '')))
-  // return csv.stringify(table)
-  return table.map(row => row.map(e => '"' + e + '"').join(',')).join('\n')
-}
-
-async function analyzeElement(elementString: string): Promise<Map<string, string>> {
-  const element: HTMLElement = await waitForElement(elementString)
-  element.click()
-  await waitForTransactionDetails(elementString)
-  const answer = transactionDetails(elementString + ' again')
-  const closeElement: HTMLElement = await waitForElement('#flyoutClose')
-  closeElement.click()
-  // myLog('not fully returned answer ' + stringifyMap(answer))
-  return answer
-}
-
-async function analyzeElementElement(element: HTMLElement, label: string): Promise<Map<string, string>> {
-  element.click()
-  await waitForTransactionDetails(label)
-  const answer = transactionDetails(label + ' again')
-  const closeElement: HTMLElement = await waitForElement('#flyoutClose')
-  closeElement.click()
-  // myLog('not fully returned answer ' + stringifyMap(answer))
-  return answer
-}
+main()
 
 function main() {
-  const csv = {'ha':'ho'}
-  chrome.runtime.sendMessage({greeting: "hello", body: csv}, function(response) {
-    console.log(response.farewell);
-  })
-  return
-  // mainWithDynamicArray()
+  myLog('main()')
+  main20210710().then(
+    x => myLog('main result=' + JSON.stringify(x))
+  )
 }
 
-async function transactionList() {
-  const table = await waitForElement('#activityTablesingleOVDAccountActivity')
-  const clickableTransactions = table.querySelectorAll('.etd-action-icon')
-}
-
-function mainWithDynamicArray() {
-
-  mainWithDynamicArrayPartial()
-    .then(function(x) {
-      const csv = toCsv(x)
-      myLog(csv)
-      myLog(x.map(e => stringifyMap(e)).join("; "))
-      save_file.save(csv, 'chase_order_numbers.csv')
-    })
-  
-}
-
-async function mainWithDynamicArrayPartial() {
-  // TODO will this run too soon?
-  const footer = await waitForElement('.transaction-footer')
-  myLog('footer text ' + footer.textContent)
-  const table = await waitForElement('#activityTablesingleOVDAccountActivity')
-  const clickableTransactions = table.querySelectorAll('.etd-action-icon')
-  let answer: Map<string, string>[] = [];
-  let i = 0 
-  for (const e of clickableTransactions) {
-    answer.push(await analyzeElementElement(e as HTMLElement, (i+1).toString()))
-    i++
+async function main20210710() {
+  myLog('main20210710()')
+  await waitUntilLoggedIn()
+  const tabUrl = await getTabUrl()
+  myLog('tabUrl=' + tabUrl)
+  const accountAndProfile = await getAccountAndProfile()
+  myLog('accountAndProfile=' + JSON.stringify(accountAndProfile))
+  const activities = await listActivities(accountAndProfile)
+  // myLog('activities=' + JSON.stringify(activities))
+  for (const activity of activities) {
+    activity['additionalDetails'] = await getAdditionalTransactionDetails(activity)
   }
-  return answer
+  return activities
 }
 
-async function mainWithHardcodedArrayPartial() : Promise<Map<string, string>[]> {
-  const elementStrings = ['#transactionDetailIcon0', '#transactionDetailIcon1', '#transactionDetailIcon2']
-  var answer: Map<string, string>[] = [];
-  for (const e of elementStrings) {
-    answer.push(await analyzeElement(e))
-  }
-  return answer
+async function waitUntilLoggedIn() {
+  await waitForElement('.transaction-footer')  
 }
 
-function mainHardcodedArray() {
-
-  mainWithHardcodedArrayPartial()
-    .then(function(x) {
-      const csv = toCsv(x)
-      // myLog(csv)
-      // myLog(x.map(e => stringifyMap(e)).join("; "))
-      // save_file.save(csv, 'chase_order_numbers.csv')
-      chrome.runtime.sendMessage({greeting: "hello", body: csv}, function(response) {
-	console.log(response.farewell);
-      })
-    })
-}
-
-function waitForTransactionDetails(transactionId: string) {
-  myLog('waitForTransactionDetails ' + transactionId)
-  return predicateSatisfied(
-    document.documentElement,
-    {
-      childList: true,
-      subtree: true
-    },
-    () => {
-      const m = transactionDetails('polling ' + transactionId)
-      const dts = Array.from(document.querySelectorAll('dt')).map(
-	e => e.textContent!.toLowerCase().trim())  // TypeScript
-      const dds = Array.from(document.querySelectorAll('dd')).map(
-	e => e.textContent || (e.querySelector('mds-link')! as HTMLElement).getAttribute('text'))
-      const satisfiedOne = dts.includes('total amazon rewards points') &&
-	dds.length >= dts.length && m.has('total amazon rewards points')
-      const satisfiedTwo = dts.includes('merchant info') && m.get('merchant info') == 'REDEMPTION CREDIT'
-      return satisfiedOne || satisfiedTwo
-    },
-      
-      // },
-    10000,
-    //    'waiting for amazon order number'
-    'waiting for total amazon rewards points'
-  ).then(() => transactionId)
-  // TODO are we supposed to catch too
-}
-
-function transactionDetails(transactionId: string) : Map<string, string> {
-  myLog('transactionDetails for ' + transactionId)
-  const dts = Array.from(document.querySelectorAll('dt')).map(
-    e => e.textContent)
-  myLog('dts.length= ' + dts.length)
-  const dds = Array.from(document.querySelectorAll('dd')).map(
-    e => e.textContent || (e.querySelector('mds-link') as HTMLElement).getAttribute('text'))
-  myLog('dds.length= ' + dts.length)
-  const m = new Map<string, string>()
-  for (let i = 0; i < dts.length; i++) {
-    m.set(dts[i]!.trim().toLowerCase(), dds[i]!.trim())
-  }
-
-  // My way works in browser but not in extension?  This is from
-  // https://github.com/djedi/chase-amazon/blob/master/ext/src/inject/inject.js#L6
-  const mdslink = document.querySelector("mds-link[id$=OrderNumber]");
-  if (mdslink) {
-    myLog('found magic ' + mdslink)
-    const number = mdslink.shadowRoot!.querySelector('a')!.text
-    myLog('found order ' + number)
-    m.set('amazon order number', mdslink.shadowRoot!.querySelector('a')!.text)
-  }
-  myLog('in transaction details answer came out to ' + stringifyMap(m))
-  return m
-}
-
-function predicateSatisfied(
-  mutationTarget: HTMLElement,
-  mutatationObserverOptions: MutationObserverInit,
-  predicate: () => boolean,
-  timeout: number,
-  description: string) {
-  return new Promise((resolve, reject) => {
-    myLog('awaiting ' + description)
-    if (predicate()) {
-      myLog('that was quick ' + description)
-      resolve(undefined)
-    } else {
-      new MutationObserver((mutationRecords, observer) => {
-	let allDone = false
-	mutationRecords.forEach(record => {
-	  record.addedNodes.forEach(node => {
-	    if (allDone || predicate()) {
-	      allDone = true
-	      myLog('satisfied ' + description)
-	      resolve(undefined)
-              observer.disconnect()
-	    }
-	  })
-	})
-      })
-	.observe(mutationTarget, mutatationObserverOptions)
+async function getAdditionalTransactionDetails(someDetails: any) {
+  const url = 'https://secure07c.chase.com/svc/rr/accounts/secure/card/activity/ods/v2/detail/list'
+  const bodySpec = [
+    ['accountId', 'digitalAccountIdentifier'],
+    ['transactionId', 'derivedUniqueTransactionIdentifier'],
+    ['postDate', 'transactionPostDate'],
+    ['cardReferenceNumber', 'cardReferenceNumber'],
+    ['relatedAccountId', 'digitalAccountIdentifier'],
+    ['merchantName', 'merchantDbaName']
+  ]
+  for (const field of bodySpec.map(s => s[1])) {
+    if (!someDetails[field]) {
+      return null
     }
+  }
+  const body = bodySpec.map(s => s[0] + '=' + encodeURIComponent(someDetails[s[1]])).join('&')
+  myLog('body='+body)
+  const response = await fetch(url, {
+    'method': 'POST',
+    'credentials': 'same-origin',
+    'headers': {
+      'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      'x-jpmc-channel': 'id=C30',
+      'x-jpmc-client-request-id': uuidv4(),
+      'x-jpmc-csrf-token': 'NONE',
+    },
+    'body': body
+  })
+  const responseJson = await response.json()
+  return responseJson
+}
+
+async function getAccountAndProfile() : Promise<[string, string]> {
+  const url = 'https://secure07c.chase.com/svc/rl/accounts/l4/v1/app/data/list'
+  const response = await fetch(url, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: new Headers({
+      'x-jpmc-channel': 'id=C30',
+      'x-jpmc-client-request-id': uuidv4(),
+      'x-jpmc-csrf-token': 'NONE',
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+    })
+  })
+  const responseJson = await response.json()
+  // Might be useful in the future: cache[n].response.accountTiles[n].accountId
+  let account = undefined
+  for (const cache of responseJson.cache) {
+    if (cache.response.defaultAccountId) {
+      account = cache.response.defaultAccountId
+      break
+    }
+  }
+  return [account, responseJson.profileId]
+}
+
+async function listActivities(accountProfile: [string, string]) {
+  // TODO actually construct a URL based on dates
+  // TODO pagination
+  const account = accountProfile[0]
+  const profile = accountProfile[1]
+  // const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&provide-available-statement-indicator=true&sort-order-code=D&sort-key-code=T`
+
+
+  const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&account-activity-end-date=20210711&account-activity-start-date=20210708&request-type-code=T&sort-order-code=D&sort-key-code=T`
+  
+  const response = await fetch(url, {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: new Headers({
+      'x-jpmc-channel': 'id=C30',
+      'x-jpmc-client-request-id': uuidv4(),
+      'x-jpmc-csrf-token': 'NONE',
+    })
+  })
+  const responseJson = await response.json()
+  return responseJson.activities
+}
+
+function getTabUrl() {
+  return new Promise((resolve, reject) => {
+    // https://stackoverflow.com/a/45600887
+    myLog('calling sendMessage')
+    chrome.runtime.sendMessage({ text: "what is my tab url?" }, tabUrl => {
+      myLog('My tabUrl is' + tabUrl);
+      resolve(tabUrl)
+    })
   })
 }
 
@@ -236,4 +173,6 @@ function waitForElement(selector: string) : Promise<HTMLElement> {
   })
 }
 
-main()
+function myLog(s: string) {
+  console.log('THROMER ' + s)
+}

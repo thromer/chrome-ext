@@ -1,15 +1,18 @@
-/*
-  chrome.runtime.onInstalled.addListener(() => {
-  console.log('onInstalled')
-  })
-*/
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     console.log(sender.tab ?
                 "from a content script:" + sender.tab.url :
                 "from the extension")
-    console.log(request.body)
-    // alert(request.body)  alert is not defined
+    console.log('request='+JSON.stringify(request))
+    console.log('text='+request.text)
+    if (request.text === "what is my tab url?") {
+      sendResponse(sender.tab ? sender.tab.url : undefined)
+    }
+    return true
+  })
+
+/*    
+      this works for calling sheets api
 
     // TODO is this async stuff ok here?
 
@@ -45,5 +48,5 @@ chrome.runtime.onMessage.addListener(
     })
     return true
   })
-
+*/
 

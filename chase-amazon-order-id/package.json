@@ -4,8 +4,7 @@
   "description": "Chase Amazon Order Number Scraper",
   "private": "true",
   "main": "src/js/contentScript.js",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/thromer/chrome-ext.git"
@@ -19,10 +18,14 @@
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
     "@types/chrome": "^0.0.145",
+    "@types/uuid": "^8.3.1",
     "copy-webpack-plugin": "^9.0.1",
     "ts-loader": "^9.2.3",
     "typescript": "^4.3.5",
     "webpack": "^5.42.1",
     "webpack-cli": "^4.7.2"
+  },
+  "dependencies": {
+    "uuid": "^8.3.2"
   }
 }
