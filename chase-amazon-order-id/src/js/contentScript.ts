@@ -4,7 +4,7 @@
 // * send service work info about our status for display inte the icon/popup
 //   * including whether we're hoping the user will login
 // * timeout on wait for element
-// * would be nice to be able to know what upper bound on date is
+// * would be nice to be able to know what upper bound on date is. let's assume "now in UTC" (just because I see a place where they have a timestamp in UTC)
 //   * can try experimentally tho
 // * use the host from the url instead of hardcoded host
 // * very optional -- different way of deciding whether we're logged in?
@@ -13,6 +13,7 @@
 //    not the pop-up
 // * search last (30) days
 // * apps script to populate order id for me
+// * provide option of not proactively scraping chase
 // * ORDER HANDLING!
 // * DONE actually scrape everything
 // * DONE download to csv
@@ -31,8 +32,26 @@ main()
 function main() {
   myLog('main()')
   main20210710().then(
-    x => myLog('main result=' + JSON.stringify(x))
-  )
+    function(x: [any]) {
+      myLog('main result=' + JSON.stringify(x))
+      const llll = x.map(z => 'y')
+      const l = x.map(function(d) { return {
+	'last4CardNumber': d.last4CardNumber || null,
+	'transactionPostDate': d.transactionPostDate || null,
+	'transactionPostTime': d.transactionPostTime || null,
+        'transactionAmount': d.transactionAmount || null,
+	'merchantDbaName': d.merchantDbaName || null,
+	'merchantOrderId': d.additionalDetails.merchantOrderId || null
+      }})
+      const request = {
+	command: 'detailedTransactions',
+	body: l
+      }
+      myLog('sending ' + JSON.stringify(request))
+      chrome.runtime.sendMessage(request, resp => {
+	myLog('resp is ' + JSON.stringify(resp));
+      })
+    })
 }
 
 async function main20210710() {

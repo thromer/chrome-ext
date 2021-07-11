@@ -1,0 +1,23 @@
+var scriptTag = document.createElement('script')
+scriptTag.src = 'https://apis.google.com/js/api.js'
+var callme = function() {console.log('fun times')}
+scriptTag.onload=callme
+scriptTag.onreadystatechange = callme
+document.body.append(scriptTag)
+// gapi.config
+gapi.load('client', function() {console.log('loaded')})
+// gapi.client
+gapi.client.init({'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest']})
+// gapi.client.sheets
+var params = {spreadsheetId: 'SHEET_ID_GOES_HERE', range: 'Transactions!1:1'}
+var request = gapi.client.sheets.spreadsheets.values.get(params);
+request.mb.Yg.method
+request.mb.Yg.root
+request.mb.Yg.path
+request.mb.Yg.body
+
+var params = {spreadsheetId: 'SHEET_ID_GOES_HERE'}
+body={valueInputOption:"USER_ENTERED",data:[{range:"Transactions!A1", values: [["Changed!"]]}]}
+{valueInputOption: "USER_ENTERED", data: Array(1)}
+request = gapi.client.sheets.spreadsheets.values.batchUpdate(params, body)
+request.mb.Yg
