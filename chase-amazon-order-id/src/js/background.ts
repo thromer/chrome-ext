@@ -22,6 +22,7 @@
 //   * last 4
 //   * order number (can be null, must be present)
 //
+// * include last 4 in filtering criteria
 // * write 'undefined' when there just isn't going to be an order number
 // * deal with Full Description vs merchantDbaName
 //     'AMZN Mktp US*XXXXX7711'
