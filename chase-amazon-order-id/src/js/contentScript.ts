@@ -137,7 +137,7 @@ async function listActivities(accountProfile: [string, string]) {
   // const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&provide-available-statement-indicator=true&sort-order-code=D&sort-key-code=T`
 
 
-  const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&account-activity-end-date=20210711&account-activity-start-date=20210708&request-type-code=T&sort-order-code=D&sort-key-code=T`
+  const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&account-activity-end-date=20210711&account-activity-start-date=20210704&request-type-code=T&sort-order-code=D&sort-key-code=T`
   
   const response = await fetch(url, {
     method: 'GET',
@@ -195,3 +195,7 @@ function waitForElement(selector: string) : Promise<HTMLElement> {
 function myLog(s: string) {
   console.log('THROMER ' + s)
 }
+
+// Local Variables:
+// compile-command: "npx tsc && (cd ../.. && npx webpack)"
+// End:
