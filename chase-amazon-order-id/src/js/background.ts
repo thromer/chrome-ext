@@ -60,6 +60,22 @@ content-type: application/json
 GET https://content-sheets.googleapis.com/v4/spreadsheets/SHEET_ID_GOES_HERE/values/Transactions!1%3A1
 */
 
+setBadgeState()
+
+chrome.alarms.create({periodInMinutes: .05})  // TODO something sensible
+
+chrome.alarms.onAlarm.addListener(
+  alarm => setBadgeState()
+)
+
+async function setBadgeState() {
+  // Gross, TypeScript could do a little better at type inference
+  await chrome.action.setBadgeBackgroundColor({color: ([0,0,0,0].map(_ => Math.floor(256*Math.random())) as [number, number, number, number])})
+  await chrome.action.setBadgeText(
+    {text: [0,0,0,0].map(_ => String.fromCharCode(32+Math.floor(95*Math.random()))).join('')})
+  console.log('hi')
+}
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     console.log(sender.tab ?

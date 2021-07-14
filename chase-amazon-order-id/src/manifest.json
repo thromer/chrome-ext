@@ -12,7 +12,7 @@
     }
   },
   "permissions": [
-    "identity"
+    "alarms", "identity"
   ],
   "oauth2": {
     "client_id": "721888169423-v64jhrmm6ge98dmkh61tl0ktv0e7dr9o.apps.googleusercontent.com",
