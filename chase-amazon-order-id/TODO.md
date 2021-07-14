@@ -4,7 +4,8 @@
 * dynamic date range to search
 * maybe: action in popup, enabled only if there's something we can do
 * relevant icons
-* fun with badge text & color
+* fun with badge text & color based on what state of Tiller sheet is
+* gray icon if there's nothing to do
 ** e.g. encourage clicking
 ** e.g. dynamically disable if there's nothing to do
 * periodically see if there is anything to do
