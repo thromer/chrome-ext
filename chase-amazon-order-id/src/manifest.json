@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Chase Amazon Order Id Scraper",
-  "description": "Scrape Amazon order ids from chase.com",
+  "name": "Tiller Amazon Helper",
+  "description": "Augment Tiller Spreadsheets with more information for Amazon orders",
   "version": "0.0.1",
   "action": {
     "default_icon": {
@@ -26,7 +26,8 @@
   "content_scripts": [
     {
       "matches": ["https://*.chase.com/*"],
-      "js": ["contentScript.js"]
+      "js": ["contentScript.js"],
+      "css": ["css/chase_tiller.css"]
     }
   ],
   "icons": {

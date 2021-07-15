@@ -1,0 +1,20 @@
+/* Based on https://github.com/philipmulcahy/azad/blob/master/src/styles/inject.css Copyright(c) 2018 Philip Mulcahy. */
+
+.chase_tiller_progress_bar,
+.chase_tiller_progress_bar_level {
+    float: left;
+    height: 29px;
+    border-style: solid;
+    border-color: #126bc5;
+    border-width: 2px;
+}
+
+.chase_tiller_progress_bar {
+    background-color: white;
+}
+
+.chase_tiller_progress_bar_level {
+    background-color: #126bc5;
+    height: 25px;
+    border-width: 0px;
+}

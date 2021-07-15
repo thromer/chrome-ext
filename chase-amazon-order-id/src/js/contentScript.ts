@@ -25,7 +25,37 @@
 // * do it when requested not eagerly!
 // * do it in hiding (doubtful!)
 
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
+
+interface IProgressBar {
+  setProgress: (progress: number) => void
+}
+
+// basically https://github.com/philipmulcahy/azad/blob/master/src/js/progress_bar.ts Copyright(c) 2020 Philip Mulcahy.
+
+function makeProgressBar() : IProgressBar {
+  const border_width = 2
+  const inner_width = 250
+  const outer_width = 2*border_width + inner_width
+  const a = document.createElement('div')
+  a.setAttribute('class', 'chase_tiller_progress_bar')
+  a.setAttribute('style', 'width:' + outer_width + 'px')
+  document.body.prepend(a)
+
+  const b = document.createElement('div')
+  b.setAttribute('class', 'chase_tiller_progress_bar_level')
+  b.setAttribute('style', 'width:0px')
+  a.insertBefore(b, a.firstChild)
+
+  const set_progress = function(progress: number) {
+    const width = Math.trunc(inner_width * progress)
+    const percent_string = '' + Math.trunc(progress * 100 + 0.005) + '%'
+    b.setAttribute('style', 'width:' + width + 'px')
+    b.innerText = percent_string
+  }
+  
+  return {setProgress: set_progress}
+}
 
 main()
 
@@ -49,7 +79,7 @@ function main() {
       }
       myLog('sending ' + JSON.stringify(request))
       chrome.runtime.sendMessage(request, resp => {
-	myLog('resp is ' + JSON.stringify(resp));
+	myLog('resp is ' + JSON.stringify(resp))
       })
     })
 }
@@ -59,18 +89,25 @@ async function main20210710() {
   await waitUntilLoggedIn()
   const tabUrl = await getTabUrl()
   myLog('tabUrl=' + tabUrl)
+  const tiller_chase_progress = makeProgressBar()
+  myLog('made indicator is it there?')
+  tiller_chase_progress.setProgress(.1)  // TODO
   const accountAndProfile = await getAccountAndProfile()
   myLog('accountAndProfile=' + JSON.stringify(accountAndProfile))
   const activities = await listActivities(accountAndProfile)
   // myLog('activities=' + JSON.stringify(activities))
+  let i = 0
   for (const activity of activities) {
     activity['additionalDetails'] = await getAdditionalTransactionDetails(activity)
+    tiller_chase_progress.setProgress(++i / activities.length)
+    myLog('updated indicator is it there?')
   }
   return activities
 }
 
 async function waitUntilLoggedIn() {
-  await waitForElement('.transaction-footer')  
+  await waitForElement('.transaction-footer')   // this doesn't always exist
+  // await waitForElement('.sign-out-menu')   this exists on the sign on page (!)
 }
 
 async function getAdditionalTransactionDetails(someDetails: any) {
@@ -157,7 +194,7 @@ function getTabUrl() {
     // https://stackoverflow.com/a/45600887
     myLog('calling sendMessage')
     chrome.runtime.sendMessage({ text: "what is my tab url?" }, tabUrl => {
-      myLog('My tabUrl is' + tabUrl);
+      myLog('My tabUrl is' + tabUrl)
       resolve(tabUrl)
     })
   })

@@ -29,6 +29,7 @@ module.exports = {
       patterns: [
 	"src/manifest.json",
 	{from: "src/images", to: "images"},
+	{from: "src/css", to: "css"},
       ]})
   ],
 }
