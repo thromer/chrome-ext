@@ -84,14 +84,61 @@ function main() {
     })
 }
 
+function funButton() {
+  // https://stackoverflow.com/a/17984701/8042530
+  // this shows up after i set zIndex
+  document.documentElement.style.height = '100%';
+  document.body.style.height = '100%';
+  document.documentElement.style.width = '100%';
+  document.body.style.width = '100%';
+  var div = document.createElement( 'div' );
+  var btnForm = document.createElement( 'form' );
+  var btn = document.createElement( 'input' );
+
+  //append all elements
+  document.body.prepend( div );
+  div.appendChild( btnForm );
+  btnForm.appendChild( btn );
+  //set attributes for div
+  div.id = 'myDivId';
+  div.style.zIndex = '9999'
+  div.style.position = 'fixed';
+  div.style.top = '50%';
+  div.style.left = '50%';
+  div.style.width = '100%';   
+  div.style.height = '100%';
+  div.style.backgroundColor = 'red';
+
+  //set attributes for btnForm
+  btnForm.action = '';
+
+  //set attributes for btn
+  //"btn.removeAttribute( 'style' );
+  btn.type = 'button';
+  btn.value = 'hello';
+  btn.style.position = 'absolute';
+  btn.style.top = '50%';
+  btn.style.left = '50%';
+
+  var div2=document.createElement("div"); 
+  document.body.prepend(div2); 
+  div2.innerText="test123";  
+  div2.style.zIndex = '9999'
+  var div3=document.createElement("div"); 
+  document.body.appendChild(div3); 
+  div3.innerText="test1234";  
+  div3.style.zIndex = '9999'
+}
+
 async function main20210710() {
   myLog('main20210710()')
   await waitUntilLoggedIn()
   const tabUrl = await getTabUrl()
   myLog('tabUrl=' + tabUrl)
-  const tiller_chase_progress = makeProgressBar()
+  // const tiller_chase_progress = makeProgressBar()
+  funButton()
   myLog('made indicator is it there?')
-  tiller_chase_progress.setProgress(.1)  // TODO
+  // tiller_chase_progress.setProgress(.1)  // TODO
   const accountAndProfile = await getAccountAndProfile()
   myLog('accountAndProfile=' + JSON.stringify(accountAndProfile))
   const activities = await listActivities(accountAndProfile)
@@ -99,7 +146,7 @@ async function main20210710() {
   let i = 0
   for (const activity of activities) {
     activity['additionalDetails'] = await getAdditionalTransactionDetails(activity)
-    tiller_chase_progress.setProgress(++i / activities.length)
+    // tiller_chase_progress.setProgress(++i / activities.length)
     myLog('updated indicator is it there?')
   }
   return activities
@@ -173,8 +220,11 @@ async function listActivities(accountProfile: [string, string]) {
   const profile = accountProfile[1]
   // const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&provide-available-statement-indicator=true&sort-order-code=D&sort-key-code=T`
 
-
-  const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&account-activity-end-date=20210711&account-activity-start-date=20210704&request-type-code=T&sort-order-code=D&sort-key-code=T`
+  const start = new Date(Date.now()-7*24*3600*1000).toISOString().replace(/-/g,'').substr(0,8)
+  const end = new Date().toISOString().replace(/-/g,'').substr(0,8)
+  myLog('start='+start)
+  myLog('end='+end)
+  const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&account-activity-end-date=${end}&account-activity-start-date=${start}&request-type-code=T&sort-order-code=D&sort-key-code=T`
   
   const response = await fetch(url, {
     method: 'GET',
