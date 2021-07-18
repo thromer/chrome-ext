@@ -9,10 +9,14 @@
       "32": "/images/get_started32.png",
       "48": "/images/get_started48.png",
       "128": "/images/get_started128.png"
-    }
+    },
+    "default_popup": "html/popup.html",
+    "default_title": "Tiller Amazon Helper"
   },
   "permissions": [
-    "alarms", "identity"
+    "alarms",
+    "identity",
+    "storage"
   ],
   "oauth2": {
     "client_id": "721888169423-v64jhrmm6ge98dmkh61tl0ktv0e7dr9o.apps.googleusercontent.com",
@@ -35,5 +39,9 @@
     "32": "/images/get_started32.png",
     "48": "/images/get_started48.png",
     "128": "/images/get_started128.png"
+  },
+  "options_ui": {
+    "page": "html/options.html",
+    "open_in_tab": true
   }
 }

@@ -6,6 +6,7 @@ module.exports = {
   entry: {
     'background': './src/js/background.ts',
     'contentScript': './src/js/contentScript.ts',
+    'options': './src/js/options.ts',
   },
   devtool: 'inline-source-map',  // needed to get .js.map
   module: {
@@ -30,6 +31,7 @@ module.exports = {
 	"src/manifest.json",
 	{from: "src/images", to: "images"},
 	{from: "src/css", to: "css"},
+	{from: "src/html", to: "html"},
       ]})
   ],
 }
