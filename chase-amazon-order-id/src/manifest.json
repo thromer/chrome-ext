@@ -24,6 +24,7 @@
       "https://www.googleapis.com/auth/spreadsheets"
     ]
   },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmQ3Vpy2YxyyZ8oHno2ZohmtTPxrwYGZgjT0eLMoL0HtOIq3ST3/e2mykfM8gg4A8Gz670iH9NFE+9dTp/xPEiKLhhsEf3CXHNcdf+IxAZCzNc2lsvB3srCbBzLdNBI4R/dRs6bqgwAYPiGue9tVB1IAPkEbVbI7Lq3qITKUeMsE8FZozC28IJQIrkEb3HWP6Nfjii5lQQMNhgQFvsbPS2zsc+tfdEQOcm0MeUohCcpWaVOJwGgMwnIh+N1v832XYQvERY4n3Zj6jp2AB809xWHw/s0nqu3V7HNMiiCJ5NUYg0JMcA7P48a5KFBJdlJeQkAOSQO4lwiCXAFpeU3yalwIDAQAB",
   "background": {
     "service_worker": "background.js"
   },

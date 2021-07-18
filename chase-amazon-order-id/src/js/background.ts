@@ -60,6 +60,7 @@ content-type: application/json
 GET https://content-sheets.googleapis.com/v4/spreadsheets/SHEET_ID_GOES_HERE/values/Transactions!1%3A1
 */
 
+/*
 setBadgeState()
 
 chrome.alarms.create({periodInMinutes: .05})  // TODO something sensible
@@ -75,6 +76,40 @@ async function setBadgeState() {
     {text: [0,0,0,0].map(_ => String.fromCharCode(32+Math.floor(95*Math.random()))).join('')})
   console.log('hi')
 }
+*/
+
+refreshFromTiller()
+chrome.alarms.create("refreshFromTiller", {periodInMinutes: 60})  // TODO configurable
+chrome.alarms.onAlarm.addListener(alarm => {
+  if (alarm.name == "refreshFromTiller") {
+    refreshFromTiller()
+  } else {
+    console.log("Ignoring alarm '" + alarm.name + "' " + JSON.stringify(alarm))
+  }
+})
+
+async function refreshFromTiller() {
+  console.log("TODO implement refreshFromTiller")
+  // TODO grab some state in tiller that we can use to drive the chase contentScript
+  //      filter on 'Date' is in last N days
+  //      filter on 'Account'
+  //      filter on 'Institution'
+  //      filter on last 4 of 'Account #'
+  //      don't filter on full description [refunds are pretty mysterious].
+  //        future could keep track of what appears before the
+  //        asterisk and filter on 'contains asterisk or has one of
+  //        those prefixes'
+  //      persist it
+  //      update the popup to match somehow
+  // What we want to persist (at least for Chase)
+  //   timestamp
+  //   list of xactions that need order numbers
+  //     'Full Description' [we'll leave it to lib code to do deal with 'X']
+  //     'Date' [assume this is post date]
+  //     'Amount'
+  //     last 4 (for some sort of validation)
+}
+
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -86,6 +121,22 @@ chrome.runtime.onMessage.addListener(
       sendResponse(sender.tab ? sender.tab.url : undefined)
       return true
     }
+    if (request.text === 'whatToDoForChaseRequest') {
+      // TODO refresh state from tiller unless it is *extremely* fresh
+      // TODO actually be dynamic
+      // TODO enough information so contentScript can show more precise status (i.e.
+      // filter on just transactions we're trying to match)
+      const newest = new Date().toISOString().substr(0,10)
+      const oldest = new Date(Date.now()-7*24*3600*1000).toISOString().substr(0,10)
+      const resp = {
+	command: 'whatToDoForChaseResponse',
+	body: {oldest: oldest, newest: newest}
+      }
+      console.log('responding with ' + JSON.stringify(resp))
+      sendResponse(resp)
+      return true
+    }
+
     if (request.command === "detailedTransactions") {
       const sheetState = SheetState.create('1UQQgW3kBfxNBB50q1pg4Hn2c6DvwoKVUF_9GelZ1k1Q')
 	.then(function(sheetState: SheetState) {

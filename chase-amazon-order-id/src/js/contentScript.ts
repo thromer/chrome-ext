@@ -1,4 +1,9 @@
 // TODO
+// * only fetch if either [this seems too complicated!]
+//   (a) we ask service worker and it tells us to (e.g. because our tab
+//       is one it opened or switched to recently)
+//   (b) we're configured to fetch eagerly
+//   (c) user said to
 // * send service worker a message asking if we need to fetch anything
 // * send service worker the results of our work
 // * send service work info about our status for display inte the icon/popup
@@ -24,6 +29,13 @@
 // * maybe wait for one of 'You've reached the end of your account activity.'
 // * do it when requested not eagerly!
 // * do it in hiding (doubtful!)
+// * progress details e.g. checkmarks
+//   * waiting for login
+//   * grabbing progress (incl errors, retry)
+//   * sheet update progress
+//   * error details
+//   * what happened: N added, N not found (here)
+
 
 import { v4 as uuidv4 } from 'uuid'
 
@@ -139,9 +151,14 @@ async function main20210710() {
   funButton()
   myLog('made indicator is it there?')
   // tiller_chase_progress.setProgress(.1)  // TODO
+
+  // Find out what we need from Tiller, if anything
+  const tillerNeeds = await whatShouldWeDo()
+  myLog('tillerNeeds='+JSON.stringify(tillerNeeds))
+  
   const accountAndProfile = await getAccountAndProfile()
   myLog('accountAndProfile=' + JSON.stringify(accountAndProfile))
-  const activities = await listActivities(accountAndProfile)
+  const activities = await listActivities(accountAndProfile, tillerNeeds)
   // myLog('activities=' + JSON.stringify(activities))
   let i = 0
   for (const activity of activities) {
@@ -213,17 +230,19 @@ async function getAccountAndProfile() : Promise<[string, string]> {
   return [account, responseJson.profileId]
 }
 
-async function listActivities(accountProfile: [string, string]) {
+async function listActivities(accountProfile: [string, string], tillerNeeds: any) {
   // TODO actually construct a URL based on dates
   // TODO pagination
   const account = accountProfile[0]
   const profile = accountProfile[1]
   // const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&provide-available-statement-indicator=true&sort-order-code=D&sort-key-code=T`
 
-  const start = new Date(Date.now()-7*24*3600*1000).toISOString().replace(/-/g,'').substr(0,8)
-  const end = new Date().toISOString().replace(/-/g,'').substr(0,8)
+  // TODO add some buffer; take into account other interesting info in request
+  const start = tillerNeeds.oldest.replace(/-/g,'')
+  const end = tillerNeeds.newest.replace(/-/g,'')
   myLog('start='+start)
   myLog('end='+end)
+
   const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&account-activity-end-date=${end}&account-activity-start-date=${start}&request-type-code=T&sort-order-code=D&sort-key-code=T`
   
   const response = await fetch(url, {
@@ -239,13 +258,26 @@ async function listActivities(accountProfile: [string, string]) {
   return responseJson.activities
 }
 
-function getTabUrl() {
+async function getTabUrl() {
+  // https://stackoverflow.com/a/45600887
+  return await mySendMessage({ text: "what is my tab url?" })
+}
+
+async function whatShouldWeDo() {
+  const fullResponse = await mySendMessage({ text: 'whatToDoForChaseRequest' })
+  // TODO throw if command != whatToDoForChaseResponse but you'd hope the protocol
+  // takes care of that!
+  myLog('full='+JSON.stringify(fullResponse))
+  myLog('body='+JSON.stringify(fullResponse.body))
+  return fullResponse.body
+}
+
+function mySendMessage(message: any) : Promise<any> {
   return new Promise((resolve, reject) => {
-    // https://stackoverflow.com/a/45600887
-    myLog('calling sendMessage')
-    chrome.runtime.sendMessage({ text: "what is my tab url?" }, tabUrl => {
-      myLog('My tabUrl is' + tabUrl)
-      resolve(tabUrl)
+    myLog('calling sendMessage ' + JSON.stringify(message))
+    chrome.runtime.sendMessage(message, response => {
+      myLog('got response ' + JSON.stringify(response))
+      resolve(response)
     })
   })
 }
