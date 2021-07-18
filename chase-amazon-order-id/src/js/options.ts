@@ -4,6 +4,7 @@
    TODO
    * validate on the fly
    * autosave
+     * https://chromium.googlesource.com/apps/libapps/+/HEAD/libdot/js/lib_preference_manager.js
 */
 
 function save_options() {
