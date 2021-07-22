@@ -7,6 +7,16 @@
      * https://chromium.googlesource.com/apps/libapps/+/HEAD/libdot/js/lib_preference_manager.js
 */
 
+// https://stackoverflow.com/a/56430612/8042530
+declare let lib: any
+// declare let lib.Storage.Chrome: any;
+
+// will it work? typescript doesn't like this.
+// is it ok todo at the top level?
+// will it run at a reasonable time?
+const storage = new lib.Storage.Chrome(chrome.storage.sync);
+
+
 function save_options() {
   console.log("save here i am")
   var chase_account = (document.getElementById('chase_account') as HTMLInputElement)!.value

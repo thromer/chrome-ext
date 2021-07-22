@@ -1,12 +1,10 @@
 // TODO
 //
-// * DONT use javascript library not raw html. REST requests aren't
-//   that hard to contruct.
-//
 // * consider tiller transactions based on
 //   * Institution = Chase
 //   * Amazon Order Number = ''
 //   * Within last 30 days (but configurable; default & one shot)
+//   * Last 4
 //
 // * tell contentScript about each transaction we hope to fill in
 //   * Full Description [this should be sufficient to identify uniquely]

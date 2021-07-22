@@ -1,3 +1,4 @@
+* make sure packaged version complies with license(s) for borrowed code
 * rename the repo
 * publish extension
 * publish cloud app too? https://support.google.com/cloud/answer/9110914

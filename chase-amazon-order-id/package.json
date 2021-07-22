@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Chase Amazon Order Number Scraper",
   "private": "true",
-  "main": "src/js/contentScript.js",
+  "main": "src/js/contentScript.ts",
   "scripts": {},
   "repository": {
     "type": "git",

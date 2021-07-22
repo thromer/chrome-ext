@@ -29,9 +29,14 @@ module.exports = {
     new CopyPlugin({
       patterns: [
 	"src/manifest.json",
+	{from: "src/js/libdot", to: "libdot"},
 	{from: "src/images", to: "images"},
 	{from: "src/css", to: "css"},
 	{from: "src/html", to: "html"},
       ]})
   ],
 }
+
+// Local Variables:
+// compile-command: "npx webpack"
+// End:
