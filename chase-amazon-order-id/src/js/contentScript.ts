@@ -314,7 +314,3 @@ function waitForElement(selector: string) : Promise<HTMLElement> {
 function myLog(s: string) {
   console.log('THROMER ' + s)
 }
-
-// Local Variables:
-// compile-command: "npx tsc && (cd ../.. && npx webpack)"
-// End:

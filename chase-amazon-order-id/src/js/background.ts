@@ -411,7 +411,3 @@ async function processDetailedTransaction(sheetState: SheetState, d: any) {
   // TODO do something helpful if they don't match up
   return {'response': d.merchantOrderId}
 }
-
-// Local Variables:
-// compile-command: "npx tsc && (cd ../.. && npx webpack)"
-// End:
