@@ -29,7 +29,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
 	"src/manifest.json",
-	"src/js/preference_manager.js",  // how would i do a pattern? it isn't intuitive.  Also maybe webpack inlines this anyway if we import properly?
+	"src/js/preference_manager.js",  // how would i do a pattern? it isn't intuitive. Also maybe webpack inlines this anyway if we import properly?
 	{from: "src/js/libdot", to: "libdot"},
 	{from: "src/images", to: "images"},
 	{from: "src/css", to: "css"},
