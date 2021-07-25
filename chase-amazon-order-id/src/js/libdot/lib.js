@@ -105,3 +105,4 @@ lib.notUndefined = function(value) {
   lib.assert(value !== undefined);
   return value;
 };
+console.log('lib loaded')

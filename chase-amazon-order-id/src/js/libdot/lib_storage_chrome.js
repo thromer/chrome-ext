@@ -163,3 +163,4 @@ lib.Storage.Chrome.prototype.removeItems = async function(keys) {
     this.storage_.remove(keys, resolve);
   });
 };
+console.log('lib_s_c loaded')

@@ -124,3 +124,4 @@ lib.Storage.generateStorageChanges = function(oldStorage, newStorage) {
 
   return changes;
 };
+console.log('lib_s loaded')

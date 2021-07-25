@@ -25,6 +25,8 @@
  */
 lib.PreferenceManager = function(storage, prefix = '/') {
   this.storage = storage;
+  console.log('onStorageChange_')
+  console.log(this.onStorageChange_)
   this.storageObserver_ = this.onStorageChange_.bind(this);
 
   this.isActive_ = false;
@@ -938,3 +940,4 @@ lib.PreferenceManager.prototype.onStorageChange_ = function(map) {
     }
   }
 };
+console.log('lib_p_m loaded')
