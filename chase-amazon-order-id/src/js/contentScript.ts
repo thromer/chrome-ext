@@ -1,3 +1,5 @@
+myLog('hello???')
+
 // TODO
 // * only fetch if either [this seems too complicated!]
 //   (a) we ask service worker and it tells us to (e.g. because our tab
@@ -37,6 +39,7 @@
 //   * what happened: N added, N not found (here)
 
 
+
 import { v4 as uuidv4 } from 'uuid'
 
 interface IProgressBar {
@@ -68,6 +71,7 @@ function makeProgressBar() : IProgressBar {
   
   return {setProgress: set_progress}
 }
+
 
 main()
 
@@ -314,3 +318,4 @@ function waitForElement(selector: string) : Promise<HTMLElement> {
 function myLog(s: string) {
   console.log('THROMER ' + s)
 }
+myLog('goodbye???')

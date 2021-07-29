@@ -51,31 +51,34 @@ How did I even make close to that many requests?
 // hyperlinks -- I think this works ok
 // * https://www.amazon.com/gp/your-account/order-details?ie=UTF8&orderID=112-5620867-7612244
 
-/* Examples
-POST https://content-sheets.googleapis.com/v4/spreadsheets/SHEET_ID_GOES_HERE/values:batchUpdate?alt=json
-content-type: application/json
+// https://developer.chrome.com/docs/extensions/reference/storage/#asynchronous-preload-from-storage
+// Where we will expose all the data we retrieve from storage.sync.
+const storageCache : any = {};
+// Asynchronously retrieve data from storage.sync, then cache it.
+const initStorageCache = getAllStorageSyncData().then(items => {
+  // Copy the data retrieved from storage into storageCache.
+  Object.assign(storageCache, items);
+});
 
-GET https://content-sheets.googleapis.com/v4/spreadsheets/SHEET_ID_GOES_HERE/values/Transactions!1%3A1
-*/
-
-/*
-setBadgeState()
-
-chrome.alarms.create({periodInMinutes: .05})  // TODO something sensible
-
-chrome.alarms.onAlarm.addListener(
-  alarm => setBadgeState()
-)
-
-async function setBadgeState() {
-  // Gross, TypeScript could do a little better at type inference
-  await chrome.action.setBadgeBackgroundColor({color: ([0,0,0,0].map(_ => Math.floor(256*Math.random())) as [number, number, number, number])})
-  await chrome.action.setBadgeText(
-    {text: [0,0,0,0].map(_ => String.fromCharCode(32+Math.floor(95*Math.random()))).join('')})
-  console.log('hi')
+// Reads all data out of storage.sync and exposes it via a promise.
+//
+// Note: Once the Storage API gains promise support, this function
+// can be greatly simplified.
+function getAllStorageSyncData() {
+  // Immediately return a promise and start asynchronous work
+  return new Promise((resolve, reject) => {
+    // Asynchronously fetch all data from storage.sync.
+    chrome.storage.sync.get(null, (items) => {
+      // Pass any observed errors down the promise chain.
+      if (chrome.runtime.lastError) {
+        return reject(chrome.runtime.lastError);
+      }
+      // Pass the data retrieved from storage down the promise chain.
+      resolve(items);
+    });
+  });
 }
-*/
-
+  
 refreshFromTiller()
 chrome.alarms.create("refreshFromTiller", {periodInMinutes: 60})  // TODO configurable
 chrome.alarms.onAlarm.addListener(alarm => {
@@ -88,6 +91,9 @@ chrome.alarms.onAlarm.addListener(alarm => {
 
 async function refreshFromTiller() {
   console.log("TODO implement refreshFromTiller")
+  await initStorageCache
+  const sheetId = storageCache['tiller_url']
+  console.log('sheetId: ' + sheetId)
   // TODO grab some state in tiller that we can use to drive the chase contentScript
   //      filter on 'Date' is in last N days
   //      filter on 'Account'
@@ -110,7 +116,7 @@ async function refreshFromTiller() {
 
 
 chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
+  async function(request, sender, sendResponse) {
     console.log(sender.tab ?
                 "from a content script:" + sender.tab.url :
                 "from the extension")
@@ -136,7 +142,11 @@ chrome.runtime.onMessage.addListener(
     }
 
     if (request.command === "detailedTransactions") {
-      const sheetState = SheetState.create('1UQQgW3kBfxNBB50q1pg4Hn2c6DvwoKVUF_9GelZ1k1Q')
+      await initStorageCache
+      const sheetId = storageCache['tiller_url']
+      console.log('sheetId: ' + sheetId)
+      //      const sheetState = SheetState.create('1UQQgW3kBfxNBB50q1pg4Hn2c6DvwoKVUF_9GelZ1k1Q')
+      const sheetState = SheetState.create(sheetId)
 	.then(function(sheetState: SheetState) {
 	  console.log('created sheetState')
 	  return processDetailedTransactions(sheetState, request.body)
