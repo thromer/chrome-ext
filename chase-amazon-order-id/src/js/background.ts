@@ -121,7 +121,8 @@ chrome.runtime.onMessage.addListener(
     }
     if (request.text === 'whatToDoForChaseRequest') {
       // TODO refresh state from tiller unless it is *extremely* fresh
-      // TODO actually be dynamic
+      // TODO don't only ask about the last week of stuff
+      // TODO actually be dynamic (what did I mean by that comment?)
       // TODO enough information so contentScript can show more precise status (i.e.
       // filter on just transactions we're trying to match)
       const newest = new Date().toISOString().substr(0,10)
