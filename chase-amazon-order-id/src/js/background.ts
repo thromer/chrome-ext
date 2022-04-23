@@ -125,8 +125,9 @@ chrome.runtime.onMessage.addListener(
       // TODO actually be dynamic (what did I mean by that comment?)
       // TODO enough information so contentScript can show more precise status (i.e.
       // filter on just transactions we're trying to match)
-      const newest = new Date().toISOString().substr(0,10)
-      const oldest = new Date(Date.now()-7*24*3600*1000).toISOString().substr(0,10)
+      const newest_ts = Date.now() // - 14*7*24*3600*1000
+      const newest = new Date(newest_ts).toISOString().substr(0,10)
+      const oldest = new Date(newest_ts-14*24*3600*1000).toISOString().substr(0,10)
       const resp = {
 	command: 'whatToDoForChaseResponse',
 	body: {oldest: oldest, newest: newest}
