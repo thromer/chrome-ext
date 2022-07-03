@@ -207,7 +207,7 @@ class SheetState {
       for (let i = 0; i < columnValues.length; i++) {
 	let cv = columnValues[i][0]
 	this.fullDescriptionValues.push(cv)
-	if (cv && cv.indexOf('X') >= 0 && cv.match(/^am/i)) {
+	if (cv && cv.indexOf('X') >= 0 && cv.match(/^(amzn|amazon|kindle|prime)/i)) {
 	  // TODO only for (case-insensitive) values that match /^am/ 
 	  let reg = new RegExp('^' + cv
 			       .replaceAll('.','\\.')
