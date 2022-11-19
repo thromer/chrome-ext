@@ -19,6 +19,7 @@
 // * search last (30) days
 // * apps script to populate order id for me
 // * provide option of not proactively scraping chase
+// * pull secure26ea.chases.com/svc/ (or whatever it is these day) from DOM, don't hard code.
 // * ORDER HANDLING!
 // * DONE actually scrape everything
 // * DONE download to csv
@@ -175,7 +176,7 @@ async function waitUntilLoggedIn() {
 }
 
 async function getAdditionalTransactionDetails(someDetails: any) {
-  const url = 'https://secure07c.chase.com/svc/rr/accounts/secure/card/activity/ods/v2/detail/list'
+  const url = 'https://secure26ea.chase.com/svc/rr/accounts/secure/card/activity/ods/v2/detail/list'
   const bodySpec = [
     ['accountId', 'digitalAccountIdentifier'],
     ['transactionId', 'derivedUniqueTransactionIdentifier'],
@@ -207,7 +208,7 @@ async function getAdditionalTransactionDetails(someDetails: any) {
 }
 
 async function getAccountAndProfile() : Promise<[string, string]> {
-  const url = 'https://secure07c.chase.com/svc/rl/accounts/l4/v1/app/data/list'
+  const url = 'https://secure26ea.chase.com/svc/rl/accounts/l4/v1/app/data/list'
   const response = await fetch(url, {
     method: 'POST',
     credentials: 'same-origin',
@@ -235,7 +236,7 @@ async function listActivities(accountProfile: [string, string], tillerNeeds: any
   // TODO pagination
   const account = accountProfile[0]
   const profile = accountProfile[1]
-  // const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&provide-available-statement-indicator=true&sort-order-code=D&sort-key-code=T`
+  // const url = `https://secure26ea.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&provide-available-statement-indicator=true&sort-order-code=D&sort-key-code=T`
 
   // TODO add some buffer; take into account other interesting info in request
   const start = tillerNeeds.oldest.replace(/-/g,'')
@@ -243,7 +244,7 @@ async function listActivities(accountProfile: [string, string], tillerNeeds: any
   myLog('start='+start)
   myLog('end='+end)
 
-  const url = `https://secure07c.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&account-activity-end-date=${end}&account-activity-start-date=${start}&request-type-code=T&sort-order-code=D&sort-key-code=T`
+  const url = `https://secure26ea.chase.com/svc/rr/accounts/secure/v4/activity/card/credit-card/transactions/inquiry-maintenance/etu-digital-card-activity/v1/profiles/${profile}/accounts/${account}/account-activities?record-count=50&account-activity-end-date=${end}&account-activity-start-date=${start}&request-type-code=T&sort-order-code=D&sort-key-code=T`
   
   const response = await fetch(url, {
     method: 'GET',
