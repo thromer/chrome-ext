@@ -19,6 +19,7 @@
 // * search last (30) days
 // * apps script to populate order id for me
 // * provide option of not proactively scraping chase
+// * pull secure26ea.chases.com/svc/ (or whatever it is these day) from DOM, don't hard code.
 // * ORDER HANDLING!
 // * DONE actually scrape everything
 // * DONE download to csv
