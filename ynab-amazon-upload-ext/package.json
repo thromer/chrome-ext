@@ -1,7 +1,7 @@
 {
-  "name": "ynab-amazon-upload-ext",
+  "name": "@thromer/ynab-amazon-updater-chrome-ext",
   "version": "0.0.1",
-  "description": "YNAB Amazon Updater",
+  "description": "YNAB Amazon Updater Chrome Extension",
   "private": "true",
   "repository": {
     "type": "git",
