@@ -1,0 +1,27 @@
+{
+  "name": "ynab-amazon-upload-ext",
+  "version": "0.0.1",
+  "description": "YNAB Amazon Updater",
+  "private": "true",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thromer/chrome-ext.git"
+  },
+  "author": "Ted Romer",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/thromer/chrome-ext/issues"
+  },
+  "homepage": "https://github.com/thromer/chrome-ext#readme",
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.2",
+    "@types/chrome": "^0.0.239",
+    "copy-webpack-plugin": "^11.0.0",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+  }
+}
